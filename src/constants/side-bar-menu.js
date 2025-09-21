@@ -1,40 +1,34 @@
-export const sidebarMenu = [
+// src/constants/side-bar-menu.js
+import { LayoutDashboard, ShoppingCart, FolderKanban, BookOpen, User, Settings, FileText, Users, Briefcase, MessageCircle } from "lucide-react";
+
+export const sideBarMenu = [
   {
-    type: "favorites",
+    title: "Dashboards",
     items: [
-      { label: "Overview", path: "/overview" },
-      { label: "Projects", path: "/projects" }
-    ]
+      { name: "Default", path: "/", icon: LayoutDashboard },
+      { name: "eCommerce", path: "/order-list", icon: ShoppingCart },
+      { name: "Projects", path: "", icon: FolderKanban },
+      { name: "Online Courses", path: "", icon: BookOpen },
+    ],
   },
   {
-    type: "section",
-    label: "Dashboards",
-    items: [
-      { label: "Default", icon: "🏠", path: "/" },
-      { label: "eCommerce", icon: "💼", path: "/ecommerce" },
-      { label: "Projects", icon: "📁", path: "/dashboard-projects" },
-      { label: "Online Courses", icon: "📚", path: "/courses" }
-    ]
-  },
-  {
-    type: "section",
-    label: "Pages",
+    title: "Pages",
     items: [
       {
-        label: "User Profile",
-        icon: "🗂️",
+        name: "User Profile",
+        icon: User,
         children: [
-          { label: "Overview", path: "/profile/overview" },
-          { label: "Projects", path: "/profile/projects" },
-          { label: "Campaigns", path: "/profile/campaigns" },
-          { label: "Documents", path: "/profile/documents" },
-          { label: "Followers", path: "/profile/followers" }
-        ]
+          { name: "Overview", path: "/profile/overview" },
+          { name: "Projects", path: "/profile/projects" },
+          { name: "Campaigns", path: "/profile/campaigns" },
+          { name: "Documents", path: "/profile/documents" },
+          { name: "Followers", path: "/profile/followers" },
+        ],
       },
-      { label: "Account", icon: "🧾", path: "/account" },
-      { label: "Corporate", icon: "🏢", path: "/corporate" },
-      { label: "Blog", icon: "📰", path: "/blog" },
-      { label: "Social", icon: "💬", path: "/social" }
-    ]
-  }
+      { name: "Account", path: "/account", icon: Settings },
+      { name: "Corporate", path: "/corporate", icon: Briefcase },
+      { name: "Blog", path: "/blog", icon: FileText },
+      { name: "Social", path: "/social", icon: MessageCircle },
+    ],
+  },
 ];

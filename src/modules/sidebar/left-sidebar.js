@@ -1,95 +1,163 @@
-import { NavLink } from "react-router-dom";
+// src/components/Sidebar.jsx
 import { useState } from "react";
-import { ChevronDown, ChevronRight } from "lucide-react";
-import { sidebarMenu } from "../../constants/side-bar-menu";
+import { NavLink } from "react-router-dom";
+import { ChevronRight, ChevronDown, Menu, X } from "lucide-react";
+import { sideBarMenu } from "../../constants/side-bar-menu";
+import {ReactComponent as ByeWindIcon} from '../../icons/ByeWind.svg'
 
-export default function Sidebar({ }) {
- 
- function SidebarSection({ section }) {
-  const [open, setOpen] = useState({});
-  const location = useLocation();
+const favorites = [
+  { name: "Starred Report", path: "/favorites/report" },
+  { name: "Quick Access", path: "/favorites/quick" },
+];
 
-  return (
-    <div className="mb-4">
-      {section.label &&
-        <div className="px-6 py-1 text-xs font-bold uppercase text-gray-400 tracking-wide">{section.label}</div>
-      }
-      <ul className="space-y-1">
-        {section.items.map((item, idx) => {
-          if (item.children) {
-            return (
-              <li key={idx}>
-                <button
-                  onClick={() => setOpen((v) => ({...v, [item.label]: !v[item.label]}))}
-                  className="w-full flex items-center justify-between px-6 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition"
-                >
-                  <span className="inline-flex items-center">
-                    <span className="mr-2">{item.icon}</span>
-                    {item.label}
-                  </span>
-                  <span className="ml-auto">{open[item.label] ? "▼" : "▶"}</span>
-                </button>
-                {open[item.label] && (
-                  <ul className="ml-8 mt-1 text-sm">
-                    {item.children.map((child, childIdx) => (
-                      <li key={childIdx}>
-                        <Link
-                          to={child.path}
-                          className={`block px-4 py-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 ${
-                            location.pathname === child.path ? "font-bold bg-gray-200 dark:bg-gray-700" : ""
-                          }`}
-                        >
-                          {child.label}
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </li>
-            );
-          }
-          return (
-            <li key={idx}>
-              <Link
-                to={item.path}
-                className={`flex items-center px-6 py-2 rounded transition hover:bg-gray-100 dark:hover:bg-gray-700 ${
-                  location.pathname === item.path ? "font-bold bg-gray-200 dark:bg-gray-700" : ""
-                }`}
+const recent = [
+  { name: "Recent File 1", path: "/recent/1" },
+  { name: "Recent File 2", path: "/recent/2" },
+];
+
+export default function Sidebar() {
+  const [openMenus, setOpenMenus] = useState({});
+  const [isOpen, setIsOpen] = useState(false);
+
+  const toggleMenu = (name) => {
+    setOpenMenus((prev) => ({ ...prev, [name]: !prev[name] }));
+  };
+
+  const renderItem = (item, sectionTitle) => {
+    const isOpenMenu = openMenus[item.name] || false;
+    const hasChildren = Array.isArray(item.children) && item.children.length > 0;
+    const Icon = item.icon;
+
+    return (
+      <div key={item.name}>
+        <div
+          onClick={() => hasChildren && toggleMenu(item.name)}
+          className="flex items-center cursor-pointer px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-800 border-l-4 border-transparent hover:border-black-500 transition-colors"
+        >
+          {/* Arrow (always for Dashboards, only if children for Pages) */}
+          <span className="mr-2 w-4 flex justify-center">
+            {sectionTitle === "Dashboards" || sectionTitle === "Pages" || hasChildren ? (
+              isOpenMenu ? (
+                <ChevronDown className="w-4 h-4" />
+              ) : (
+                <ChevronRight className="w-4 h-4" />
+              )
+            ) : null}
+          </span>
+
+          {/* Icon */}
+          {Icon && <Icon className="w-4 h-4 mr-2" />}
+
+          {/* NavLink */}
+          <NavLink
+            to={item.path || "#"}
+            className={({ isActive }) =>
+              `flex-1 ${
+                isActive
+                  ? "bg-gray-100 dark:bg-gray-800 "
+                  : ""
+              }`
+            }
+          >
+            {item.name}
+          </NavLink>
+        </div>
+
+        {/* Children (for Pages only) */}
+        {hasChildren && isOpenMenu && (
+          <div className="ml-8">
+            {item.children.map((child) => (
+              <NavLink
+                key={child.name}
+                to={child.path}
+                className={({ isActive }) =>
+                  `block px-4 py-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700 rounded ${
+                    isActive
+                      ? "bg-gray-100 dark:bg-gray-800 border-l-4 border-indigo-500"
+                      : ""
+                  }`
+                }
               >
-                <span className="mr-2">{item.icon}</span> {item.label}
-              </Link>
-            </li>
-          );
-        })}
-      </ul>
-    </div>
-  );
-}
+                {child.name}
+              </NavLink>
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  };
 
   return (
-     <aside className="w-64 min-h-screen flex flex-col bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800">
-      {/* Menu */}
-      <nav className="flex-1">
-        {sidebarMenu.map((section, idx) =>
-          section.type === "favorites" ? (
-            <div className="px-6 mb-2" key={idx}>
-              <div className="flex space-x-4 text-xs">
-                <span className="font-bold text-gray-500">Favorites</span>
-                <span className="text-gray-300">Recently</span>
+    <>
+      {/* Header (mobile hamburger) */}
+      <div className="sm:hidden flex items-center justify-between p-4 border-b dark:border-gray-700">
+        <button onClick={() => setIsOpen(true)} className="p-2">
+          <Menu className="w-6 h-6" />
+        </button>
+        <span className="font-bold">ByeWind</span>
+      </div>
+
+      {/* Overlay for mobile */}
+      {isOpen && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-40 z-30 sm:hidden"
+          onClick={() => setIsOpen(false)}
+        />
+      )}
+
+      {/* Sidebar */}
+      <div
+        className={`fixed sm:static top-0 left-0 h-full w-[212px] bg-white dark:bg-gray-900 shadow-md z-40 transform transition-transform sm:translate-x-0 ${
+          isOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
+      >
+        {/* Sidebar Header */}
+        <div className="p-4 font-bold text-lg border-b dark:border-gray-700 flex gap-4 items-center">
+         <ByeWindIcon />
+          ByeWind
+          <button
+            className="sm:hidden p-2"
+            onClick={() => setIsOpen(false)}
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+        <div className="border-t dark:border-gray-700 mt-auto">
+         <div className="flex flex-row"> <div className="p-3 font-semibold text-sm text-gray-500">Favorites</div>
+          <div className="p-3 font-semibold text-sm text-gray-500">Recently</div></div>
+          {favorites.map((fav) => (
+            <NavLink
+              key={fav.name}
+              to={fav.path}
+              className={({ isActive }) =>
+                `block px-4 py-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700 ${
+                  isActive
+                    ? "bg-gray-100 dark:bg-gray-800 border-l-4 border-indigo-500"
+                    : ""
+                }`
+              }
+            >
+              {fav.name}
+            </NavLink>
+          ))}
+
+         
+        </div>
+
+        {/* Dynamic Menus */}
+        <div className="flex-1 overflow-y-auto">
+          {sideBarMenu.map((section) => (
+            <div key={section.title} className="mb-4">
+              <div className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase">
+                {section.title}
               </div>
-              <ul className="ml-2 mt-1 text-xs space-y-1">
-                {section.items.map((fav, fidx) => (
-                  <li key={fidx}>
-                    <Link to={fav.path} className="hover:underline">{fav.label}</Link>
-                  </li>
-                ))}
-              </ul>
+              {section.items.map((item) => renderItem(item, section.title))}
             </div>
-          ) : (
-            <SidebarSection section={section} key={idx} />
-          )
-        )}
-      </nav>
-    </aside>
+          ))}
+        </div>
+
+        
+      </div>
+    </>
   );
 }
